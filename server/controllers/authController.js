@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const AppError = require('./../utils/appError');
 const catchAsync = require('./../utils/catchAsync');
 const User = require('./../models/userModel');
@@ -60,6 +61,7 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
   }
   // 2) Generate random reset token
   const resetToken = user.createPasswordResetToken();
+  console.log(resetToken);
   await user.save({ validateBeforeSave: false });
   // 3) Sent it to user's email
   try {
@@ -74,4 +76,22 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
 
     return next(new AppError('There was an error sending email. Try again later!', 500));
   }
+});
+
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  // 1) Get user based on the token
+  const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+  const user = await User.findOne({ passwordResetToken: hashedToken, passwordResetExpires: { $gt: Date.now() } });
+  if (!user) {
+    return next(new AppError('Token is invalid or has exspired!', 400));
+  }
+  // 2) If token is not exspired and There is user, set new password
+  user.password = req.body.password;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+
+  // 3) Update changedAt property for the user by using pre save middleware
+  // 4) if everything is ok, send token to user
+  createSendToken(user, 200, res);
 });

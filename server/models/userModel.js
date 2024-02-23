@@ -44,6 +44,13 @@ const userSchema = new mongoose.Schema({
   },
 });
 
+// Updating changedAt property by using pre save middleware
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+  this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
 userSchema.pre('save', async function (next) {
   // Do not run the function If password was NOT modified
   if (!this.isModified('password')) return next();
