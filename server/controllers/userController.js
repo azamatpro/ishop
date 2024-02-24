@@ -1,4 +1,5 @@
 const User = require('../models/userModel');
+const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
 exports.deleteMe = catchAsync(async (req, res, next) => {
@@ -14,4 +15,12 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
     results: users.length,
     data: { users },
   });
+});
+
+exports.getUser = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.params.userId);
+  if (!user) {
+    return next(new AppError('There is no user with this ID!', 404));
+  }
+  res.status(200).json({ status: 'success', data: { user } });
 });
