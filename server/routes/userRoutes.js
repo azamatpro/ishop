@@ -21,6 +21,6 @@ router.use(authController.restrictTo('admin'));
 
 router.get('/', userController.getAllUsers);
 
-router.route('/:id').get(userController.getUser).patch(userController.updateUser);
+router.route('/:id').get(userController.getUser).patch(userController.updateUser).delete(userController.deleteUser);
 
 module.exports = router;
