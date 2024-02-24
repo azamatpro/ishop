@@ -44,6 +44,11 @@ const userSchema = new mongoose.Schema({
   },
 });
 
+userSchema.pre(/^find/, function (next) {
+  this.find({ active: { $ne: false } });
+  next();
+});
+
 // Updating changedAt property by using pre save middleware
 userSchema.pre('save', function (next) {
   if (!this.isModified('password') || this.isNew) return next();
