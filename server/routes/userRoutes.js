@@ -13,6 +13,7 @@ router.patch('/resetPassword/:token', authController.resetPassword);
 router.use(authController.protect); // works to protect all routes below
 
 router.patch('/updateMyPassword', authController.updatePassword);
+router.get('/me', userController.getMe, userController.getUser);
 router.delete('/deleteMe', userController.deleteMe);
 
 router.use(authController.restrictTo('admin'));
