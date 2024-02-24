@@ -30,6 +30,17 @@ const userSchema = new mongoose.Schema({
     minlength: [8, 'Password must be more or equal to 8 characters'],
     select: false,
   },
+  passwordConfirm: {
+    type: String,
+    required: [true, 'Please confirm your password'],
+    validate: {
+      // This only works on CREATE and SAVE methods!
+      validator: function (val) {
+        return val === this.password;
+      },
+      message: 'Passwords must be the same!',
+    },
+  },
   createdAt: {
     type: Date,
     default: Date.now(),
@@ -62,6 +73,9 @@ userSchema.pre('save', async function (next) {
 
   // Hash the password with cost of 12
   this.password = await bcrypt.hash(this.password, 12);
+
+  // Delete passwordConfirm
+  this.passwordConfirm = undefined;
   next();
 });
 

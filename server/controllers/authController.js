@@ -30,6 +30,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
+    passwordConfirm: req.body.passwordConfirm,
     passwordChangedAt: req.body.passwordChangedAt,
     role: req.body.role,
   });
@@ -93,6 +94,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   }
   // 2) If token is not exspired and There is user, set new password
   user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
   user.passwordResetToken = undefined;
   user.passwordResetExpires = undefined;
   await user.save();
@@ -140,16 +142,18 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   if (!user) {
     return next(new AppError('There is no user with this email!', 401));
   }
+  console.log(user);
   // 2) Check If posted current password is correct
-  if (!(await user.comparePassword(req.body.currentPassword, user.password))) {
+  if (!(await user.comparePassword(req.body.passwordCurrent, user.password))) {
     return next(new AppError('Incorrect password! Please try with correct password!', 401));
   }
   // 3) If so, update password
   user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
   await user.save();
   // 4) Log user in, send JWT token
   createSendToken(user, 200, res);
-  // next();
+  next();
 });
 
 exports.restrictTo = (...roles) => {
