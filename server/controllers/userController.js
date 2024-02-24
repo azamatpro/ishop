@@ -11,7 +11,7 @@ const filterData = (obj, ...allowedField) => {
 };
 
 exports.getMe = (req, res, next) => {
-  req.params.userId = req.user.id;
+  req.params.id = req.user.id;
   next();
 };
 
@@ -47,9 +47,23 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
 });
 
 exports.getUser = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.params.userId);
+  const user = await User.findById(req.params.id);
   if (!user) {
     return next(new AppError('There is no user with this ID!', 404));
   }
   res.status(200).json({ status: 'success', data: { user } });
+});
+
+exports.updateUser = catchAsync(async (req, res, next) => {
+  // 1) Check if Amin tries to update user's password
+  if (req.body.password || req.body.passwordConfirm) {
+    return next(new AppError('Admins can not update user passwords!', 400));
+  }
+  // 2) Update user
+  const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+  if (!updatedUser) {
+    return next(new AppError('No user found with this ID', 404));
+  }
+  // 3) Send a response
+  res.status(200).json({ status: 'success', data: { user: updatedUser } });
 });
