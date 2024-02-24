@@ -102,8 +102,6 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
-exports.updatePassword = catchAsync(async (req, res, next) => {});
-
 exports.protect = catchAsync(async (req, res, next) => {
   // 1) Getting token and check of it is here
   let token;
@@ -134,4 +132,22 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = currentUser;
   res.locals.user = currentUser;
   next();
+});
+
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  // 1) Get user from collection
+  const user = await User.findById(req.user.id).select('+password');
+  if (!user) {
+    return next(new AppError('There is no user with this email!', 401));
+  }
+  // 2) Check If posted current password is correct
+  if (!(await user.comparePassword(req.body.currentPassword, user.password))) {
+    return next(new AppError('Incorrect password! Please try with correct password!', 401));
+  }
+  // 3) If so, update password
+  user.password = req.body.password;
+  await user.save();
+  // 4) Log user in, send JWT token
+  createSendToken(user, 200, res);
+  // next();
 });
