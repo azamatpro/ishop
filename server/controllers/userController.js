@@ -1,6 +1,7 @@
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
+const factory = require('../controllers/factoryHandler');
 
 const filterData = (obj, ...allowedField) => {
   const newObj = {};
@@ -36,42 +37,10 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   res.status(200).json({ status: 'success', data: { user: updatedUser } });
 });
 
-exports.getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find();
-  // SEND RESPONSE
-  res.status(200).json({
-    status: 'success',
-    results: users.length,
-    data: { users },
-  });
-});
+exports.getAllUsers = factory.getAll(User);
 
-exports.getUser = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.params.id);
-  if (!user) {
-    return next(new AppError('There is no user with this ID!', 404));
-  }
-  res.status(200).json({ status: 'success', data: { user } });
-});
+exports.getUser = factory.getOne(User);
 
-exports.updateUser = catchAsync(async (req, res, next) => {
-  // 1) Check if Amin tries to update user's password
-  if (req.body.password || req.body.passwordConfirm) {
-    return next(new AppError('Admins can not update user passwords!', 400));
-  }
-  // 2) Update user
-  const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-  if (!updatedUser) {
-    return next(new AppError('No user found with this ID', 404));
-  }
-  // 3) Send a response
-  res.status(200).json({ status: 'success', data: { user: updatedUser } });
-});
+exports.updateUser = factory.updateOne(User);
 
-exports.deleteUser = catchAsync(async (req, res, next) => {
-  const user = await User.findByIdAndDelete(req.params.id);
-  if (!user) {
-    return next(new AppError('No user found with this ID', 404));
-  }
-  res.status(204).json({ status: 'success', data: null });
-});
+exports.deleteUser = factory.deleteOne(User);
