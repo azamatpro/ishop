@@ -1,8 +1,10 @@
 const express = require('express');
-const productControl = require('../controllers/productController');
+const productController = require('../controllers/productController');
+const authController = require('../controllers/authController');
 
 const router = express.Router();
 
-router.route('/').post(productControl.createProduct);
+router.get('/', productController.getAllProducts);
+router.get('/:id', productController.getProduct);
 
 module.exports = router;

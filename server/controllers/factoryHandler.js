@@ -14,7 +14,7 @@ exports.getOne = (Model) => {
     if (!doc) {
       return next(new AppError('There is no document with this ID!', 404));
     }
-    res.status(200).json({ status: 'success', data: { doc } });
+    res.status(200).json({ status: 'success', data: { data: doc } });
   });
 };
 
