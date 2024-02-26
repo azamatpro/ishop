@@ -1,13 +1,9 @@
 const Product = require('../models/productModel');
-const catchAsync = require('../utils/catchAsync');
+// const catchAsync = require('../utils/catchAsync');
 const factory = require('../controllers/factoryHandler');
 
-// exports.createProduct = factory.createOne(Product);
-
-// exports.deleteProduct = factory.deleteOne(Product);
-
-// exports.updateProduct = factory.updateOne(Product);
-
-exports.getProduct = factory.getOne(Product);
+exports.getProduct = factory.getOne(Product, { path: 'reviews' });
 
 exports.getAllProducts = factory.getAll(Product);
+
+exports.createProduct = factory.createOne(Product);

@@ -8,9 +8,9 @@ exports.createOne = (Model) => {
   });
 };
 
-exports.getOne = (Model) => {
+exports.getOne = (Model, popOptions) => {
   return catchAsync(async (req, res, next) => {
-    const doc = await Model.findById(req.params.id);
+    const doc = await Model.findById(req.params.id).populate(popOptions);
     if (!doc) {
       return next(new AppError('There is no document with this ID!', 404));
     }
@@ -20,7 +20,10 @@ exports.getOne = (Model) => {
 
 exports.getAll = (Model) => {
   return catchAsync(async (req, res, next) => {
-    const docs = await Model.find();
+    // To allow for nested Get reviews on tour (hack)
+    let filter = {};
+    if (req.params.productId) filter = { tour: req.params.productId };
+    const docs = await Model.find(filter);
     // SEND RESPONSE
     res.status(200).json({
       status: 'success',

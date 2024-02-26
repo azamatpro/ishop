@@ -46,14 +46,14 @@ const productSchema = new mongoose.Schema(
         message: 'Product status is either: New in, limited edition, Sold Out, 50% Discount',
       },
     },
-    ratingAvarage: {
+    ratingsAverage: {
       type: Number,
       default: 4.5,
       min: [1, 'A tour must be above than 1.0'],
       max: [5, 'A tour must be below than 5.0'],
       set: (val) => Math.round(val * 10) / 10, // 4.66666 * 10 => 47 /10 => 4.7
     },
-    rating: {
+    ratingsQuantity: {
       type: Number,
       default: 0,
     },
@@ -72,6 +72,13 @@ const productSchema = new mongoose.Schema(
 
 productSchema.index({ price: 1, ratingAvarage: -1 });
 productSchema.index({ slug: 1 });
+
+// Virtual populate
+productSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'product', // property where Ref to the current Model is stored
+  localField: '_id', // id of current model
+});
 
 productSchema.pre('save', function (next) {
   this.link = slugify(this.name, { lower: true });
