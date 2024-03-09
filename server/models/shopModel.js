@@ -2,83 +2,89 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const shopSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'Please enter your shop name!'],
-  },
-  email: {
-    type: String,
-    required: [true, 'Please enter your shop email address'],
-  },
-  password: {
-    type: String,
-    required: [true, 'Please enter your password'],
-    minLength: [8, 'Password should be greater than 6 characters'],
-    select: false,
-  },
-  description: {
-    type: String,
-  },
-  address: {
-    type: String,
-    required: true,
-  },
-  phoneNumber: {
-    type: Number,
-    required: true,
-  },
-  role: {
-    type: String,
-    default: 'Seller',
-  },
-  avatar: {
-    public_id: {
+const shopSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, 'Please enter your shop name!'],
+    },
+    email: {
+      type: String,
+      required: [true, 'Please enter your shop email address'],
+    },
+    password: {
+      type: String,
+      required: [true, 'Please enter your password'],
+      minLength: [8, 'Password should be greater than 6 characters'],
+      select: false,
+    },
+    description: {
+      type: String,
+    },
+    address: {
       type: String,
       required: true,
     },
-    url: {
+    phoneNumber: {
       type: String,
       required: true,
     },
-  },
-  zipCode: {
-    type: Number,
-    required: true,
-  },
-  withdrawMethod: {
-    type: Object,
-  },
-  availableBalance: {
-    type: Number,
-    default: 0,
-  },
-  transections: [
-    {
-      amount: {
-        type: Number,
-        required: true,
-      },
-      status: {
+    role: {
+      type: String,
+      default: 'seller',
+    },
+    avatar: {
+      public_id: {
         type: String,
-        default: 'Processing',
+        // required: true,
       },
-      createdAt: {
-        type: Date,
-        default: Date.now(),
-      },
-      updatedAt: {
-        type: Date,
+      url: {
+        type: String,
+        // required: true,
       },
     },
-  ],
-  createdAt: {
-    type: Date,
-    default: Date.now(),
+    zipCode: {
+      type: Number,
+      required: true,
+    },
+    withdrawMethod: {
+      type: Object,
+    },
+    availableBalance: {
+      type: Number,
+      default: 0,
+    },
+    transections: [
+      {
+        amount: {
+          type: Number,
+          // required: true,
+        },
+        status: {
+          type: String,
+          default: 'Processing',
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now(),
+        },
+        updatedAt: {
+          type: Date,
+        },
+      },
+    ],
+    createdAt: {
+      type: Date,
+      default: Date.now(),
+    },
+    resetPasswordToken: String,
+    resetPasswordTime: Date,
   },
-  resetPasswordToken: String,
-  resetPasswordTime: Date,
-});
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
+);
 
 // Hash password
 shopSchema.pre('save', async function (next) {
@@ -94,6 +100,13 @@ shopSchema.methods.getJwtToken = function () {
     expiresIn: process.env.JWT_EXPIRES,
   });
 };
+
+// Virtual populate
+shopSchema.virtual('products', {
+  ref: 'Product',
+  foreignField: 'shop', // property where Ref to the current Model is stored
+  localField: '_id', // id of current model
+});
 
 // comapre password
 shopSchema.methods.comparePassword = async function (enteredPassword) {

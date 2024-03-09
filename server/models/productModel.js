@@ -23,6 +23,11 @@ const productSchema = new mongoose.Schema(
       trim: true,
       required: [true, 'Please describe your product!'],
     },
+    shop: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Shop',
+      required: [true, 'Product must belong to a shop'],
+    },
     category: {
       type: String,
       required: [true, 'Please enter your product category!'],

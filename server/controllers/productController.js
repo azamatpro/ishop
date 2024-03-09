@@ -7,3 +7,5 @@ exports.getProduct = factory.getOne(Product, { path: 'reviews' });
 exports.getAllProducts = factory.getAll(Product);
 
 exports.createProduct = factory.createOne(Product);
+exports.updateProduct = factory.updateOne(Product);
+exports.deleteProduct = factory.deleteOne(Product);
