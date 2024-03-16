@@ -1,6 +1,7 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
+const cors = require('cors');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -10,6 +11,7 @@ const reviewRouter = require('./routes/reviewRoutes');
 const shopRouter = require('./routes/shopRoutes');
 
 const app = express();
+app.use(cors());
 
 // Development logging
 if (process.env.NODE_ENV === 'development') {

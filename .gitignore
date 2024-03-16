@@ -1,5 +1,6 @@
 # dependencies
 server/config/.env
+client/.env.local
 client/node_modules
 client/.next
 server/node_modules

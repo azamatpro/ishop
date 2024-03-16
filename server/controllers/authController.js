@@ -34,6 +34,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordChangedAt: req.body.passwordChangedAt,
     role: req.body.role,
   });
+
   createSendToken(newUser, 201, res);
   const url = `${req.protocol}://${req.get('host')}/me`;
   await new Email(newUser, url).sendWelcome();
@@ -106,6 +107,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
 exports.protect = catchAsync(async (req, res, next) => {
   // 1) Getting token and check of it is here
+  console.log(req.headers.authorization);
   let token;
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];

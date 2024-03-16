@@ -8,6 +8,9 @@ import Navigation from '@/shared/Navigation/Navigation';
 import CartDropdown from './CartDropdown';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
+import ncNanoId from '@/utils/ncNanoId';
+import Link from 'next/link';
 
 export interface MainNav2LoggedProps {}
 
@@ -15,6 +18,11 @@ const MainNav2Logged: FC<MainNav2LoggedProps> = () => {
   const inputRef = createRef<HTMLInputElement>();
   const [showSearchForm, setShowSearchForm] = useState(false);
   const router = useRouter();
+  const { currentUser } = useSelector((state: any) => state.user);
+  const authItems = [
+    // { id: ncNanoId(), href: '/login', name: 'Login' },
+    { id: ncNanoId(), href: '/signup', name: 'Signup' },
+  ];
 
   const renderMagnifyingGlassIcon = () => {
     return (
@@ -59,6 +67,21 @@ const MainNav2Logged: FC<MainNav2LoggedProps> = () => {
     );
   };
 
+  const renderSignupAndLogin = (item: any) => {
+    return (
+      <li key={item.id}>
+        <Link
+          className='font-normal text-slate-600 hover:text-black dark:text-slate-400 dark:hover:text-white'
+          href={{
+            pathname: item.href || undefined,
+          }}
+        >
+          {item.name}
+        </Link>
+      </li>
+    );
+  };
+
   const renderContent = () => {
     return (
       <div className='h-20 flex justify-between'>
@@ -83,8 +106,15 @@ const MainNav2Logged: FC<MainNav2LoggedProps> = () => {
               {renderMagnifyingGlassIcon()}
             </button>
           )}
-          <AvatarDropdown />
-          <CartDropdown />
+
+          {currentUser?.status === 'success' ? (
+            <>
+              <AvatarDropdown />
+              <CartDropdown />
+            </>
+          ) : (
+            <ul className='grid space-y-4'>{authItems.map(renderSignupAndLogin)}</ul>
+          )}
         </div>
       </div>
     );

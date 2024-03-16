@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'user',
   },
+  address: String,
+  dateOfBirth: Date,
+  gender: String,
+  phoneNumber: String,
+  about: String,
   password: {
     type: String,
     required: [true, 'Please provide a password'],
