@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { useSelector, useDispatch } from 'react-redux';
 import { signOutUserStart, signOutUserSuccess, signOutUserFailure } from '@/redux/user/userSlice';
 import { useRouter } from 'next/navigation';
+import { showAlert } from '@/utils/alert';
 
 export default function AvatarDropdown() {
   const router = useRouter();
@@ -24,14 +25,17 @@ export default function AvatarDropdown() {
       dispatch(signOutUserStart());
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/logout`);
       const data = await res.json();
-      if (data.status === 'error') {
+      if (data.status !== 'success') {
         dispatch(signOutUserFailure(data.message));
+        showAlert('error', 'Something went wrong, Could not log out!');
         return;
       }
       dispatch(signOutUserSuccess(data));
+      showAlert('success', 'User logged out successfully!');
       router.push('/');
     } catch (error: any) {
       dispatch(signOutUserFailure(error.message));
+      showAlert('error', error.message);
     }
   };
   return (

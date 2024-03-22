@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const AppError = require('./../utils/appError');
 const catchAsync = require('./../utils/catchAsync');
 const User = require('./../models/userModel');
-const Email = require('../utils/email');
+const sendEmail = require('../utils/email');
 const { promisify } = require('util');
 
 const signToken = (id) => {
@@ -73,9 +73,10 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
   // 3) Sent it to user's email
   try {
-    const url = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
+    // const url = `${req.protocol}://${req.get('host')}/resetPassword/${resetToken}`;
+    const url = `http://127.0.0.1:3000/resetPassword/${resetToken}`;
     // send email...
-    await new Email(user, url).sendPasswordReset();
+    sendEmail(user.email, 'Password Reset Token', url);
     res.status(200).json({ status: 'success', message: 'Token sent to email!' });
   } catch (error) {
     user.passwordResetToken = undefined;

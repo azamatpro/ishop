@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSelector, useDispatch } from 'react-redux';
 import { signInStart, signInSuccess, signInFailure } from '@/redux/user/userSlice';
+import { showAlert } from '@/utils/alert';
 
 const loginSocials = [
   {
@@ -54,14 +55,17 @@ const PageSignUp = () => {
       });
       const data = await res.json();
 
-      if (data.success === false) {
+      if (data.status !== 'success') {
         dispatch(signInFailure(data.message));
+        showAlert('error', 'Something went wrong, Could not sign up!');
         return;
       }
       dispatch(signInSuccess(data));
+      showAlert('success', 'User signed up successfully!');
       router.push('/');
     } catch (error: any) {
       dispatch(signInFailure(error.message));
+      showAlert('error', error.message);
     }
   };
 

@@ -5,6 +5,7 @@ import ButtonPrimary from '@/shared/Button/ButtonPrimary';
 import Input from '@/shared/Input/Input';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateUserPasswordStart, updateUserPasswordSuccess, updateUserPasswordFailure } from '@/redux/user/userSlice';
+import { showAlert } from '@/utils/alert';
 
 const AccountPass = () => {
   const inputRefs = useRef<{
@@ -39,11 +40,11 @@ const AccountPass = () => {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      if (data.status === 'error') {
+      if (data.status !== 'success') {
         dispatch(updateUserPasswordFailure(data.message));
+        showAlert('error', 'Something went wrong, Could not change your password!');
         return;
       }
-
       dispatch(updateUserPasswordSuccess(data));
       // Clear the input values after successful data update
       Object.values(inputRefs.current).forEach((inputRef) => {
@@ -51,8 +52,10 @@ const AccountPass = () => {
           inputRef.value = '';
         }
       });
+      showAlert('success', 'Password changed successfully!');
     } catch (error: any) {
       dispatch(updateUserPasswordFailure(error.message));
+      showAlert('error', error.message);
     }
   };
 

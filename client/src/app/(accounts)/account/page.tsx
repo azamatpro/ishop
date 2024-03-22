@@ -9,11 +9,13 @@ import Textarea from '@/shared/Textarea/Textarea';
 import Image from 'next/image';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateUserStart, updateUserSuccess, updateUserFailure } from '@/redux/user/userSlice';
+import { showAlert } from '@/utils/alert';
 
 const AccountPage = () => {
-  // const photoRef = useRef<HTMLInputElement>(null);
   const dispatch = useDispatch();
-  const [formData, setFormData] = useState({});
+  // const [photo, setPhoto] = useState('');
+  const [userData, setUserData] = useState({});
+
   const { loading, currentUser } = useSelector((state: any) => state.user);
 
   let user: any;
@@ -22,14 +24,21 @@ const AccountPage = () => {
   }
   const birthDate = user.dateOfBirth ? new Date(user.dateOfBirth).toISOString().split('T')[0] : '';
 
-  const handleChange = (e: any): void => {
-    setFormData({
-      ...formData,
+  const handleChange = (e: any) => {
+    setUserData({
+      ...userData,
       [e.target.name]: e.target.value,
     });
   };
 
-  const handleUpdate = async () => {
+  // const handleFileChange = (e: any): void => {
+  //   const file = e.target.files[0];
+  //   console.log(file);
+  //   setPhoto(file);
+  // };
+
+  const handleUpdate = async (e: any) => {
+    e.preventDefault();
     try {
       dispatch(updateUserStart());
       const { token } = currentUser;
@@ -39,23 +48,25 @@ const AccountPage = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(userData),
       });
-
       const data = await res.json();
-      if (data.status === 'error') {
+      if (data.status !== 'success') {
         dispatch(updateUserFailure(data.message));
+        showAlert('error', 'Something went wrong, Could not update your data!');
         return;
       }
       dispatch(updateUserSuccess(data));
+      showAlert('success', 'User data changed successfully!');
     } catch (error: any) {
       dispatch(updateUserFailure(error.message));
+      showAlert('error', error.message);
     }
   };
 
   return (
     <div className={`nc-AccountPage `}>
-      <div className='space-y-10 sm:space-y-12'>
+      <form onSubmit={handleUpdate} className='space-y-10 sm:space-y-12'>
         {/* HEADING */}
         <h2 className='text-2xl sm:text-3xl font-semibold'>Account infomation</h2>
         <div className='flex flex-col md:flex-row'>
@@ -83,7 +94,7 @@ const AccountPage = () => {
                 <span className='mt-1 text-xs'>Change Image</span>
               </div>
               <input
-                onChange={handleChange}
+                // onChange={handleFileChange}
                 name='photo'
                 type='file'
                 accept='image/*'
@@ -189,11 +200,11 @@ const AccountPage = () => {
               />
             </div>
             <div className='pt-2'>
-              <ButtonPrimary onClick={handleUpdate}>{loading === true ? 'Loading...' : 'Update account'}</ButtonPrimary>
+              <ButtonPrimary type='submit'>{loading === true ? 'Loading...' : 'Update account'}</ButtonPrimary>
             </div>
           </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 };

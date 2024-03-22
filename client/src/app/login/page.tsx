@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSelector, useDispatch } from 'react-redux';
 import { signInStart, signInSuccess, signInFailure } from '@/redux/user/userSlice';
+import { showAlert } from '@/utils/alert';
 
 const loginSocials = [
   {
@@ -51,14 +52,17 @@ const PageLogin = () => {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      if (data.status === 'error') {
+      if (data.status !== 'success') {
         dispatch(signInFailure(data.message));
+        showAlert('error', 'Something went wrong, Could not log in!');
         return;
       }
       dispatch(signInSuccess(data));
+      showAlert('success', 'User logged in successfully!');
       router.push('/');
     } catch (error: any) {
       dispatch(signInFailure(error.message));
+      showAlert('error', error.message);
     }
   };
   return (
@@ -104,7 +108,7 @@ const PageLogin = () => {
             <label className='block'>
               <span className='flex justify-between items-center text-neutral-800 dark:text-neutral-200'>
                 Password
-                <Link href='/subscription' className='text-sm text-green-600'>
+                <Link href='/forgetPassword' className='text-sm text-green-600'>
                   Forgot password?
                 </Link>
               </span>
