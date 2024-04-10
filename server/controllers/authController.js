@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const AppError = require('./../utils/appError');
 const catchAsync = require('./../utils/catchAsync');
 const User = require('./../models/userModel');
-const sendEmail = require('../utils/email');
+const { sendPasswordResetEmail, sendWelcomeEmail } = require('../utils/email');
 const { promisify } = require('util');
 
 const signToken = (id) => {
@@ -20,7 +20,7 @@ const createSendToken = (user, statusCode, res) => {
   };
   if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
   res.cookie('jwt', token, cookieOptions);
-  // Remove password
+  // Remove passwords
   user.password = undefined;
   res.status(statusCode).json({ status: 'success', token, data: { user } });
 };
@@ -34,10 +34,8 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordChangedAt: req.body.passwordChangedAt,
     role: req.body.role,
   });
-
   createSendToken(newUser, 201, res);
-  const url = `${req.protocol}://${req.get('host')}/me`;
-  await new Email(newUser, url).sendWelcome();
+  sendWelcomeEmail(newUser.email, newUser.name);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -60,6 +58,31 @@ exports.logout = catchAsync(async (req, res, next) => {
   res.status(200).json({ status: 'success', message: 'User logged out!' });
 });
 
+// =======>> Sign in & up with Google api route
+exports.signWithGoogle = catchAsync(async (req, res, next) => {
+  const user = await User.findOne({ email: req.body.email });
+  if (user) {
+    // If user existes, sign in
+    const { password: pass, ...rest } = user._doc;
+    createSendToken(rest, 200, res);
+  } else {
+    // If user doesn't existe, sign up
+    const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+
+    const newUser = new User({
+      name: req.body.name,
+      email: req.body.email,
+      password: generatedPassword,
+      passwordConfirm: generatedPassword,
+      photo: req.body.photo,
+    });
+    await newUser.save();
+    const { password: pass, ...rest } = newUser._doc;
+    sendWelcomeEmail(rest.email, rest.name);
+    createSendToken(rest, 200, res);
+  }
+});
+
 exports.forgetPassword = catchAsync(async (req, res, next) => {
   // 1) Get user based on posted email
   const { email } = req.body;
@@ -76,7 +99,7 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
     // const url = `${req.protocol}://${req.get('host')}/resetPassword/${resetToken}`;
     const url = `http://127.0.0.1:3000/resetPassword/${resetToken}`;
     // send email...
-    sendEmail(user.email, 'Password Reset Token', url);
+    sendPasswordResetEmail(user.email, url);
     res.status(200).json({ status: 'success', message: 'Token sent to email!' });
   } catch (error) {
     user.passwordResetToken = undefined;
@@ -121,7 +144,8 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // 2) Verify token, gets issued time and owner of token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-
+  console.log('Decoded', decoded);
+  console.log('Token', token);
   // 3) Check if user still exists
   const currentUser = await User.findById(decoded.id);
   if (!currentUser) {
@@ -145,7 +169,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   if (!user) {
     return next(new AppError('There is no user with this email!', 401));
   }
-  console.log(user);
+
   // 2) Check If posted current password is correct
   if (!(await user.comparePassword(req.body.passwordCurrent, user.password))) {
     return next(new AppError('Incorrect password! Please try with correct password!', 401));

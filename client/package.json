@@ -23,6 +23,7 @@
     "axios": "^1.6.7",
     "eslint": "8.38.0",
     "eslint-config-next": "13.3.0",
+    "firebase": "^10.9.0",
     "framer-motion": "^10.11.2",
     "next": "^13.3.0",
     "rc-slider": "^10.1.0",

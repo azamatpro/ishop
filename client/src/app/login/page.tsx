@@ -1,7 +1,5 @@
 'use client';
-import React, { FC, FormEvent, useState } from 'react';
-import facebookSvg from '@/images/Facebook.svg';
-import twitterSvg from '@/images/Twitter.svg';
+import React, { FormEvent, useState } from 'react';
 import googleSvg from '@/images/Google.svg';
 import Input from '@/shared/Input/Input';
 import ButtonPrimary from '@/shared/Button/ButtonPrimary';
@@ -10,25 +8,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSelector, useDispatch } from 'react-redux';
 import { signInStart, signInSuccess, signInFailure } from '@/redux/user/userSlice';
+import { signInWithGooglePopup } from '@/utils/firebase.utils';
 import { showAlert } from '@/utils/alert';
-
-const loginSocials = [
-  {
-    name: 'Continue with Facebook',
-    href: '#',
-    icon: facebookSvg,
-  },
-  {
-    name: 'Continue with Twitter',
-    href: '#',
-    icon: twitterSvg,
-  },
-  {
-    name: 'Continue with Google',
-    href: '#',
-    icon: googleSvg,
-  },
-];
 
 const PageLogin = () => {
   const { loading } = useSelector((state: any) => state.user);
@@ -65,6 +46,35 @@ const PageLogin = () => {
       showAlert('error', error.message);
     }
   };
+  const handleGoogleClick = async () => {
+    try {
+      dispatch(signInStart());
+      const result = await signInWithGooglePopup();
+      const { displayName, email, photoURL } = result.user;
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/loginWithGoogle`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: displayName, email, photo: photoURL }),
+      });
+
+      const data = await res.json();
+      if (data.status !== 'success') {
+        dispatch(signInFailure(data.message));
+        showAlert('error', "Couldn't log in with google!");
+        return;
+      }
+      dispatch(signInSuccess(data));
+      showAlert('success', 'User logged in successfully!');
+      router.push('/');
+    } catch (error: any) {
+      dispatch(signInFailure(error.message));
+      showAlert('error', error.message);
+      console.log("Couldn't log in with google", error);
+    }
+  };
+
   return (
     <div className={`nc-PageLogin`} data-nc-id='PageLogin'>
       <div className='container mb-24 lg:mb-32'>
@@ -73,18 +83,16 @@ const PageLogin = () => {
         </h2>
         <div className='max-w-md mx-auto space-y-6'>
           <div className='grid gap-3'>
-            {loginSocials.map((item, index) => (
-              <a
-                key={index}
-                href={item.href}
-                className='flex w-full rounded-lg bg-primary-50 dark:bg-neutral-800 px-4 py-3 transform transition-transform sm:px-6 hover:translate-y-[-2px]'
-              >
-                <Image className='flex-shrink-0' src={item.icon} alt={item.name} sizes='40px' />
-                <h3 className='flex-grow text-center text-sm font-medium text-neutral-700 dark:text-neutral-300 sm:text-sm'>
-                  {item.name}
-                </h3>
-              </a>
-            ))}
+            <a
+              onClick={handleGoogleClick}
+              href={'#'}
+              className='flex w-full rounded-lg bg-primary-50 dark:bg-neutral-800 px-4 py-3 transform transition-transform sm:px-6 hover:translate-y-[-2px]'
+            >
+              <Image className='flex-shrink-0' src={googleSvg} alt={'Continue with Google'} sizes='40px' />
+              <h3 className='flex-grow text-center text-sm font-medium text-neutral-700 dark:text-neutral-300 sm:text-sm'>
+                Continue with Google
+              </h3>
+            </a>
           </div>
           {/* OR */}
           <div className='relative text-center'>

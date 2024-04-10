@@ -1,21 +1,24 @@
-"use client";
+'use client';
 
-import React, { FC, useState } from "react";
-import Logo from "@/shared/Logo/Logo";
-import MenuBar from "@/shared/MenuBar/MenuBar";
-import LangDropdown from "./LangDropdown";
-import AvatarDropdown from "./AvatarDropdown";
-import TemplatesDropdown from "./TemplatesDropdown";
-import DropdownCategories from "./DropdownCategories";
-import CartDropdown from "./CartDropdown";
-import { XMarkIcon } from "@heroicons/react/24/outline";
-import { useRouter } from "next/navigation";
+import React, { FC, useState } from 'react';
+import Logo from '@/shared/Logo/Logo';
+import MenuBar from '@/shared/MenuBar/MenuBar';
+import LangDropdown from './LangDropdown';
+import AvatarDropdown from './AvatarDropdown';
+import ButtonPrimary from '@/shared/Button/ButtonPrimary';
+import TemplatesDropdown from './TemplatesDropdown';
+import DropdownCategories from './DropdownCategories';
+import CartDropdown from './CartDropdown';
+import { XMarkIcon } from '@heroicons/react/24/outline';
+import { useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
 
 export interface MainNav2Props {
   className?: string;
 }
 
-const MainNav2: FC<MainNav2Props> = ({ className = "" }) => {
+const MainNav2: FC<MainNav2Props> = ({ className = '' }) => {
+  const { loading, currentShop } = useSelector((state: any) => state.shop);
   const [showSearchForm, setShowSearchForm] = useState(false);
   const router = useRouter();
 
@@ -40,7 +43,7 @@ const MainNav2: FC<MainNav2Props> = ({ className = "" }) => {
         className='flex-1 py-2 text-slate-900 dark:text-slate-100'
         onSubmit={(e) => {
           e.preventDefault();
-          router.push("/search");
+          router.push('/search');
         }}
       >
         <div className='bg-slate-50 dark:bg-slate-800 flex items-center space-x-1.5 px-5 h-full rounded'>
@@ -93,6 +96,8 @@ const MainNav2: FC<MainNav2Props> = ({ className = "" }) => {
                 {renderMagnifyingGlassIcon()}
               </button>
             )}
+
+            <ButtonPrimary type='submit'>{loading === true ? 'Loading...' : 'Create shop'}</ButtonPrimary>
             <AvatarDropdown />
             <CartDropdown />
           </div>

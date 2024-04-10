@@ -1,14 +1,18 @@
 const express = require('express');
 const shopController = require('./../controllers/shopController');
-// const authController = require('./../controllers/authController');
 const productRoutes = require('.././routes/productRoutes');
 
 const router = express.Router();
-// Merging Routes
-router.use('/:shopId/products', productRoutes);
 
 router.post('/', shopController.createShop);
 router.get('/', shopController.getAllShops);
 
+router.use(shopController.protect); // works to protect all routes below
+
+// Merging Routes
+router.use('/:shopId/products', productRoutes);
+
+router.patch('/updateShopPassword', shopController.updatePassword);
 router.route('/:id').get(shopController.getShop).patch(shopController.updateShop).delete(shopController.deleteShop);
+
 module.exports = router;

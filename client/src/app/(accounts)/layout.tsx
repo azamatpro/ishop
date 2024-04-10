@@ -35,6 +35,10 @@ const pages: {
     name: 'Change Billing',
     link: '/account-billing',
   },
+  {
+    name: 'Become a Seller',
+    link: '/become-seller',
+  },
 ];
 
 const CommonLayout: FC<CommonLayoutProps> = ({ children }) => {

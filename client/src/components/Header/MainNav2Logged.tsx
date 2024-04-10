@@ -9,12 +9,14 @@ import CartDropdown from './CartDropdown';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
+import ButtonPrimary from '@/shared/Button/ButtonPrimary';
 import ncNanoId from '@/utils/ncNanoId';
 import Link from 'next/link';
 
 export interface MainNav2LoggedProps {}
 
 const MainNav2Logged: FC<MainNav2LoggedProps> = () => {
+  const { loading, currentShop } = useSelector((state: any) => state.shop);
   const inputRef = createRef<HTMLInputElement>();
   const [showSearchForm, setShowSearchForm] = useState(false);
   const router = useRouter();
@@ -106,6 +108,12 @@ const MainNav2Logged: FC<MainNav2LoggedProps> = () => {
               {renderMagnifyingGlassIcon()}
             </button>
           )}
+
+          {/* <div className=''>
+            <Link href={'/create-shop'}>
+              <ButtonPrimary>Register shop</ButtonPrimary>
+            </Link>
+          </div> */}
 
           {currentUser?.status === 'success' ? (
             <>

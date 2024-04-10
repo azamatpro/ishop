@@ -11,12 +11,25 @@ const shopSchema = new mongoose.Schema(
     email: {
       type: String,
       required: [true, 'Please enter your shop email address'],
+      unique: true,
+      lowercase: true,
     },
     password: {
       type: String,
       required: [true, 'Please enter your password'],
       minLength: [8, 'Password should be greater than 6 characters'],
       select: false,
+    },
+    passwordConfirm: {
+      type: String,
+      required: [true, 'Please confirm shop password'],
+      validate: {
+        // This only works on CREATE and SAVE methods!
+        validator: function (val) {
+          return val === this.password;
+        },
+        message: 'Passwords must be the same!',
+      },
     },
     description: {
       type: String,
@@ -33,7 +46,7 @@ const shopSchema = new mongoose.Schema(
       type: String,
       default: 'seller',
     },
-    avatar: {
+    photo: {
       public_id: {
         type: String,
         // required: true,
@@ -86,6 +99,18 @@ const shopSchema = new mongoose.Schema(
   }
 );
 
+shopSchema.pre('save', async function (next) {
+  // Do not run the function If password was NOT modified
+  if (!this.isModified('password')) return next();
+
+  // Hash the password with cost of 12
+  this.password = await bcrypt.hash(this.password, 12);
+
+  // Delete passwordConfirm
+  this.passwordConfirm = undefined;
+  next();
+});
+
 // Hash password
 shopSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
@@ -109,8 +134,21 @@ shopSchema.virtual('products', {
 });
 
 // comapre password
-shopSchema.methods.comparePassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+// shopSchema.methods.comparePassword = async function (enteredPassword) {
+//   return await bcrypt.compare(enteredPassword, this.password);
+// };
+
+shopSchema.methods.comparePassword = async function (candidatePass, shopPass) {
+  console.log(candidatePass, shopPass);
+  return await bcrypt.compare(candidatePass, shopPass);
+};
+
+shopSchema.methods.checkChangedPassword = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const changedTimeStamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
+    return JWTTimestamp < changedTimeStamp;
+  }
+  return false;
 };
 
 const Shop = mongoose.model('Shop', shopSchema);
