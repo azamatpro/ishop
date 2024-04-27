@@ -4,9 +4,14 @@ import Input from '@/shared/Input/Input';
 import ButtonPrimary from '@/shared/Button/ButtonPrimary';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useSelector, useDispatch } from 'react-redux';
 import { showAlert } from '@/utils/alert';
+import { createShopFailure, createShopStart, createShopSuccess } from '@/redux/shop/shopSlice';
 
-const PageForgetPassword = () => {
+const PageLogin = () => {
+  const { loading } = useSelector((state: any) => state.user);
+
+  const dispatch = useDispatch();
   const router = useRouter();
   const [formData, setFormData] = useState({});
 
@@ -14,10 +19,11 @@ const PageForgetPassword = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleForgetPassword = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleLogin = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/forgetPassword/`, {
+      dispatch(createShopStart());
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/shops/loginShop`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -26,12 +32,15 @@ const PageForgetPassword = () => {
       });
       const data = await res.json();
       if (data.status !== 'success') {
-        showAlert('error', 'Something went wrong, Could not get token with this email!');
+        dispatch(createShopFailure(data.message));
+        showAlert('error', data.message);
         return;
       }
-      showAlert('success', 'Token sent to your email!');
-      router.push('/');
+      dispatch(createShopSuccess(data));
+      showAlert('success', 'You logged in your shop successfully!');
+      router.push('/shop');
     } catch (error: any) {
+      dispatch(createShopFailure(error.message));
       showAlert('error', error.message);
     }
   };
@@ -40,11 +49,11 @@ const PageForgetPassword = () => {
     <div className={`nc-PageLogin`} data-nc-id='PageLogin'>
       <div className='container mb-24 lg:mb-32'>
         <h2 className='my-20 flex items-center text-3xl leading-[115%] md:text-5xl md:leading-[115%] font-semibold text-neutral-900 dark:text-neutral-100 justify-center'>
-          Forgot Password
+          Log in your shop
         </h2>
         <div className='max-w-md mx-auto space-y-6'>
           {/* FORM */}
-          <form onSubmit={handleForgetPassword} className='grid grid-cols-1 gap-6' action='#' method='post'>
+          <form onSubmit={handleLogin} className='grid grid-cols-1 gap-6' action='#' method='post'>
             <label className='block'>
               <span className='text-neutral-800 dark:text-neutral-200'>Email address</span>
               <Input
@@ -55,14 +64,23 @@ const PageForgetPassword = () => {
                 className='mt-1'
               />
             </label>
-            <ButtonPrimary type='submit'>Continue</ButtonPrimary>
+            <label className='block'>
+              <span className='flex justify-between items-center text-neutral-800 dark:text-neutral-200'>
+                Password
+                <Link href='/forgetPassword' className='text-sm text-green-600'>
+                  Forgot password?
+                </Link>
+              </span>
+              <Input onChange={handleChange} name='password' type='password' className='mt-1' />
+            </label>
+            <ButtonPrimary type='submit'>{loading === true ? 'Loading...' : 'Continue'}</ButtonPrimary>
           </form>
 
           {/* ==== */}
           <span className='block text-center text-neutral-700 dark:text-neutral-300'>
-            New user? {` `}
-            <Link className='text-green-600' href='/signup'>
-              Create an account
+            No shop yet? {` `}
+            <Link className='text-green-600' href='/become-seller'>
+              Become a seller
             </Link>
           </span>
         </div>
@@ -71,4 +89,4 @@ const PageForgetPassword = () => {
   );
 };
 
-export default PageForgetPassword;
+export default PageLogin;

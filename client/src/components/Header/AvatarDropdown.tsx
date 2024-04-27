@@ -1,7 +1,6 @@
 'use client';
 
 import { Popover, Transition } from '@/app/headlessui';
-import { avatarImgs } from '@/contains/fakeData';
 import { Fragment } from 'react';
 import Avatar from '@/shared/Avatar/Avatar';
 import SwitchDarkMode2 from '@/shared/SwitchDarkMode/SwitchDarkMode2';
@@ -17,6 +16,7 @@ export default function AvatarDropdown() {
   const { currentUser } = useSelector((state: any) => state.user);
   const { currentShop } = useSelector((state: any) => state.shop);
   let user: any;
+
   if (currentUser) {
     user = currentUser.data?.user;
   }
@@ -39,6 +39,7 @@ export default function AvatarDropdown() {
       showAlert('error', error.message);
     }
   };
+
   return (
     <div className='AvatarDropdown '>
       <Popover className='relative'>
@@ -118,7 +119,7 @@ export default function AvatarDropdown() {
 
                     {/* ------------------ 2 --------------------- */}
                     <Link
-                      href={currentShop ? '/shop' : '/become-seller'}
+                      href={currentShop ? '/shop' : '/login-shop'}
                       className='flex items-center p-2 -m-3 transition duration-150 ease-in-out rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50'
                       onClick={() => close()}
                     >
@@ -141,7 +142,7 @@ export default function AvatarDropdown() {
                         </svg>
                       </div>
                       <div className='ml-4'>
-                        <p className='text-sm font-medium '>{'My Shop'}</p>
+                        <p className='text-sm font-medium '>Become a Seller</p>
                       </div>
                     </Link>
 

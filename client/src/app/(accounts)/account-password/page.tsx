@@ -6,6 +6,7 @@ import Input from '@/shared/Input/Input';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateUserPasswordStart, updateUserPasswordSuccess, updateUserPasswordFailure } from '@/redux/user/userSlice';
 import { showAlert } from '@/utils/alert';
+import { useRouter } from 'next/navigation';
 
 const AccountPass = () => {
   const inputRefs = useRef<{
@@ -18,6 +19,7 @@ const AccountPass = () => {
     input3: null,
   });
   const dispatch = useDispatch();
+  const router = useRouter();
   const { loading, currentUser } = useSelector((state: any) => state.user);
   const [formData, setFormData] = useState({});
 
@@ -53,6 +55,7 @@ const AccountPass = () => {
         }
       });
       showAlert('success', 'Password changed successfully!');
+      router.push('/');
     } catch (error: any) {
       dispatch(updateUserPasswordFailure(error.message));
       showAlert('error', error.message);

@@ -6,6 +6,7 @@ import Input from '@/shared/Input/Input';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateShopStart, updateShopSuccess, updateShopFailure } from '@/redux/shop/shopSlice';
 import { showAlert } from '@/utils/alert';
+import { useRouter } from 'next/navigation';
 
 const ShopPass = () => {
   const inputRefs = useRef<{
@@ -18,6 +19,7 @@ const ShopPass = () => {
     input3: null,
   });
   const dispatch = useDispatch();
+  const router = useRouter();
   const { loading, currentShop } = useSelector((state: any) => state.shop);
   const [formData, setFormData] = useState({});
 
@@ -30,8 +32,6 @@ const ShopPass = () => {
 
   const handlePasswordUpdate = async () => {
     try {
-      console.log(formData);
-
       dispatch(updateShopStart());
       const { token } = currentShop;
 
@@ -59,6 +59,7 @@ const ShopPass = () => {
         }
       });
       showAlert('success', 'Password changed successfully!');
+      router.push('/shop');
     } catch (error: any) {
       dispatch(updateShopFailure(error.message));
       showAlert('error', error.message);

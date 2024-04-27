@@ -31,9 +31,7 @@ const shopSchema = new mongoose.Schema(
         message: 'Passwords must be the same!',
       },
     },
-    description: {
-      type: String,
-    },
+    description: String,
     address: {
       type: String,
       required: true,
@@ -111,7 +109,6 @@ shopSchema.pre('save', async function (next) {
   next();
 });
 
-
 // jwt token
 shopSchema.methods.getJwtToken = function () {
   return jwt.sign({ id: this._id }, process.env.JWT_SECRET_KEY, {
@@ -127,12 +124,8 @@ shopSchema.virtual('products', {
 });
 
 // comapre password
-// shopSchema.methods.comparePassword = async function (enteredPassword) {
-//   return await bcrypt.compare(enteredPassword, this.password);
-// };
 
 shopSchema.methods.comparePassword = async function (candidatePass, shopPass) {
-  console.log(candidatePass, shopPass);
   return await bcrypt.compare(candidatePass, shopPass);
 };
 

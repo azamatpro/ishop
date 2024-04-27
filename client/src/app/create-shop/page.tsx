@@ -12,13 +12,13 @@ import { useRouter } from 'next/navigation';
 const ShopPage = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const [userData, setUserData] = useState({});
+  const [shopData, setShopData] = useState({});
 
   const { loading } = useSelector((state: any) => state.shop);
 
   const handleChange = (e: any) => {
-    setUserData({
-      ...userData,
+    setShopData({
+      ...shopData,
       [e.target.name]: e.target.value,
     });
   };
@@ -32,7 +32,7 @@ const ShopPage = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(userData),
+        body: JSON.stringify(shopData),
       });
       const data = await res.json();
       if (data.status !== 'success') {

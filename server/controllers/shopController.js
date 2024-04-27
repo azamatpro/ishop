@@ -12,7 +12,6 @@ const signToken = (id) => {
 };
 
 const createSendToken = (shop, statusCode, res) => {
-  console.log(shop);
   const token = signToken(shop._id);
   const cookieOptions = {
     expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
@@ -28,6 +27,22 @@ const createSendToken = (shop, statusCode, res) => {
 exports.createShop = catchAsync(async (req, res, next) => {
   const newShop = await Shop.create(req.body);
   createSendToken(newShop, 201, res);
+  // sendWelcomeEmail(newUser.email, newUser.name);
+});
+
+exports.loginShop = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
+  // 1) Check email or password exist
+  if (!email || !password) {
+    return next(new AppError('Please provide email and password', 400));
+  }
+  // 2) Check if user exists and password is correct
+  const shop = await Shop.findOne({ email }).select('+password');
+
+  if (!shop || !(await shop.comparePassword(password, shop.password))) {
+    return next(new AppError('Incorrect email or password', 401));
+  }
+  createSendToken(shop, 200, res);
 });
 
 exports.updateShop = catchAsync(async (req, res, next) => {
@@ -47,15 +62,15 @@ exports.updateShop = catchAsync(async (req, res, next) => {
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
   // 1) Get user from collection
-  console.log('RU', req);
+
   const shop = await Shop.findById(req.user.id).select('+password');
   if (!shop) {
-    return next(new AppError('There is no user with this email!', 401));
+    return next(new AppError('There is no shop with this email!', 401));
   }
-  console.log(req.body.passwordCurrent, shop.password);
+
   // 2) Check If posted current password is correct
   const checkPass = await shop.comparePassword(req.body.passwordCurrent, shop.password);
-  console.log(checkPass);
+
   if (!checkPass) {
     return next(new AppError('Incorrect password! Please try with correct password!', 401));
   }
@@ -65,18 +80,17 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   await shop.save();
   // 4) Log user in, send JWT token
   createSendToken(shop, 200, res);
-  next();
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
   // 1) Getting token and check of it is here
-  console.log(req.headers.authorization);
   let token;
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
   } else if (req.cookies.jwt) {
     token = req.cookies.jwt;
   }
+
   if (!token) {
     return next(new AppError('You are not logged in! Please log in to get an access.'), 401);
   }
@@ -86,6 +100,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // 3) Check if user still exists
   const currentUser = await Shop.findById(decoded.id);
+
   if (!currentUser) {
     return next(new AppError('The user belonging to this token does no longer exist.', 401));
   }
@@ -101,6 +116,18 @@ exports.protect = catchAsync(async (req, res, next) => {
   next();
 });
 
-exports.deleteShop = factory.deleteOne(Shop);
+exports.logoutShop = catchAsync(async (req, res, next) => {
+  res.cookie('jwt', 'loggedout', { expires: new Date(Date.now() + 10 * 1000), httpOnly: true });
+  res.status(200).json({ status: 'success', message: 'You logged out from shop successfully!' });
+});
+
+exports.deleteShop = catchAsync(async (req, res, next) => {
+  const doc = await Shop.findByIdAndDelete(req.params.id);
+  if (!doc) {
+    return next(new AppError('No document found with this ID', 404));
+  }
+  res.status(204).json({ status: 'success', data: null, message: 'Deleted successfully!' });
+});
+
 exports.getShop = factory.getOne(Shop, { path: 'products' });
 exports.getAllShops = factory.getAll(Shop);

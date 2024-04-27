@@ -54,8 +54,8 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
 });
 
 exports.updateMe = catchAsync(async (req, res, next) => {
-  console.log('REQ_Body:', req.body);
-  console.log('REQ_File:', req.file);
+  // console.log('REQ_Body:', req.body);
+  // console.log('REQ_File:', req.file);
 
   // 1) Create an error If user posts password
   if (req.body.password || req.body.passwordConfirm) {

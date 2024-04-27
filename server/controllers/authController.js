@@ -92,7 +92,7 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
   }
   // 2) Generate random reset token
   const resetToken = user.createPasswordResetToken();
-  console.log(resetToken);
+
   await user.save({ validateBeforeSave: false });
   // 3) Sent it to user's email
   try {
@@ -131,7 +131,6 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
 exports.protect = catchAsync(async (req, res, next) => {
   // 1) Getting token and check of it is here
-  console.log(req.headers.authorization);
   let token;
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
@@ -144,8 +143,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // 2) Verify token, gets issued time and owner of token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  console.log('Decoded', decoded);
-  console.log('Token', token);
+
   // 3) Check if user still exists
   const currentUser = await User.findById(decoded.id);
   if (!currentUser) {
@@ -180,7 +178,6 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   await user.save();
   // 4) Log user in, send JWT token
   createSendToken(user, 200, res);
-  next();
 });
 
 exports.restrictTo = (...roles) => {

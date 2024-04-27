@@ -2,7 +2,7 @@ import React from 'react';
 import ButtonPrimary from '@/shared/Button/ButtonPrimary';
 import Link from 'next/link';
 
-const AccountBilling = () => {
+const BecomeSeller = () => {
   return (
     <div className='container mb-24 lg:mb-32'>
       <h2 className='mt-20 mb-10 text-2xl sm:text-3xl font-semibold'>Become a Seller</h2>
@@ -26,4 +26,4 @@ const AccountBilling = () => {
   );
 };
 
-export default AccountBilling;
+export default BecomeSeller;
