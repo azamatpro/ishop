@@ -39,6 +39,9 @@ export default function AvatarDropdown() {
       showAlert('error', error.message);
     }
   };
+  const goToShop = () => {
+    window.open('https://ishop-seller-admin.vercel.app/login', '_blank');
+  };
 
   return (
     <div className='AvatarDropdown '>
@@ -119,9 +122,12 @@ export default function AvatarDropdown() {
 
                     {/* ------------------ 2 --------------------- */}
                     <Link
-                      href={currentShop ? '/shop' : '/login-shop'}
+                      href={!currentShop ? '/create-shop' : '/'}
                       className='flex items-center p-2 -m-3 transition duration-150 ease-in-out rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50'
-                      onClick={() => close()}
+                      onClick={() => {
+                        close();
+                        if (currentShop) goToShop();
+                      }}
                     >
                       <div className='flex items-center justify-center flex-shrink-0 text-neutral-500 dark:text-neutral-300'>
                         <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
@@ -142,7 +148,7 @@ export default function AvatarDropdown() {
                         </svg>
                       </div>
                       <div className='ml-4'>
-                        <p className='text-sm font-medium '>Become a Seller</p>
+                        <p className='text-sm font-medium '> {currentShop ? 'My shop' : 'Become a Seller'}</p>
                       </div>
                     </Link>
 

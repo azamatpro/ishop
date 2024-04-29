@@ -19,13 +19,7 @@ exports.sendWelcomeEmail = (to, name) => {
     subject: 'Welcome to iShop Market!',
     html: output,
   };
-  sgMail.send(msg, function (err, result) {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log('Email was sent!');
-    }
-  });
+  sgMail.send(msg);
 };
 exports.sendPasswordResetEmail = (to, url) => {
   const output = `
@@ -41,11 +35,19 @@ exports.sendPasswordResetEmail = (to, url) => {
     subject: 'Password Reset Token!',
     html: output,
   };
-  sgMail.send(msg, function (err, result) {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log('Email was sent!');
-    }
-  });
+  sgMail.send(msg);
+};
+exports.sendCreateShoptEmail = (to) => {
+  const output = `
+    <p>You created shop succussfully.
+    Please go to the url below and continue to log in your shop. If you didn't, then ignore this email!</p>
+    <p>https://ishop-seller-admin.vercel.app/login</p>
+    `;
+  const msg = {
+    to,
+    from,
+    subject: 'Shop created succussfully!',
+    html: output,
+  };
+  sgMail.send(msg);
 };

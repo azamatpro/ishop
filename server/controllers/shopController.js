@@ -4,6 +4,7 @@ const catchAsync = require('../utils/catchAsync');
 const factory = require('./factoryHandler');
 const { promisify } = require('util');
 const AppError = require('../utils/appError');
+const { sendCreateShoptEmail } = require('../utils/email');
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -27,7 +28,7 @@ const createSendToken = (shop, statusCode, res) => {
 exports.createShop = catchAsync(async (req, res, next) => {
   const newShop = await Shop.create(req.body);
   createSendToken(newShop, 201, res);
-  // sendWelcomeEmail(newUser.email, newUser.name);
+  sendCreateShoptEmail(newShop?.email);
 });
 
 exports.loginShop = catchAsync(async (req, res, next) => {

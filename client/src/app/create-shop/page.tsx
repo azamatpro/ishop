@@ -41,8 +41,8 @@ const ShopPage = () => {
         return;
       }
       dispatch(createShopSuccess(data));
-      showAlert('success', 'Shop created successfully!');
-      router.push('/shop');
+      showAlert('success', 'Shop created successfully. Email sent to your email to continue to your shop!');
+      router.push('/');
     } catch (error: any) {
       dispatch(createShopFailure(error.message));
       showAlert('error', error.message);
