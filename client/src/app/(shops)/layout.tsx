@@ -20,14 +20,6 @@ const pages: {
     link: '/shop',
   },
   {
-    name: 'Create product',
-    link: '/shop-createproduct',
-  },
-  {
-    name: 'Client orders',
-    link: '/shop-orders',
-  },
-  {
     name: 'Change password',
     link: '/shop-password',
   },
