@@ -40,7 +40,7 @@ app.all('*', (req, res, next) => {
 
 app.use(globalErrorHandler);
 
-app.get('/test', () => {
+app.get('https://ishop-server.vercel.app/test', () => {
   return 'Hello world';
 });
 

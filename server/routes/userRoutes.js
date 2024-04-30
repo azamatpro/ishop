@@ -7,6 +7,9 @@ const router = express.Router();
 // const upload = multer({ dest: 'client/public/users' });
 
 router.post('/signup', authController.signup);
+router.get('/signup', () => {
+  return 'Hello world';
+});
 router.post('/loginWithGoogle', authController.signWithGoogle);
 router.post('/signWithGoogle', authController.signWithGoogle);
 router.post('/login', authController.login);
