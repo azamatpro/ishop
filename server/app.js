@@ -40,4 +40,8 @@ app.all('*', (req, res, next) => {
 
 app.use(globalErrorHandler);
 
+app.get('/test', () => {
+  return 'Hello world';
+});
+
 module.exports = app;
