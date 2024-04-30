@@ -35,7 +35,7 @@ app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/shops', shopRouter);
 
 //
-app.get('/test', () => {
+app.use('/test', () => {
   return 'Hello world';
 });
 
