@@ -35,8 +35,8 @@ app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/shops', shopRouter);
 
 //
-app.use('/test', () => {
-  return 'Hello world';
+app.use('/test', (req, res, next) => {
+  res.send('Hello world');
 });
 
 app.all('*', (req, res, next) => {
