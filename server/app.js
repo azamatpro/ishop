@@ -12,7 +12,8 @@ const reviewRouter = require('./routes/reviewRoutes');
 const shopRouter = require('./routes/shopRoutes');
 
 const app = express();
-app.use(cors('https://ishop-market.vercel.app'));
+const cors_domains = ['https://ishop-seller-admin.vercel.app', 'https://ishop-market.vercel.app'];
+app.use(cors(cors_domains));
 
 // Development logging
 if (process.env.NODE_ENV === 'development') {
