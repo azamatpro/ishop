@@ -12,7 +12,7 @@ const reviewRouter = require('./routes/reviewRoutes');
 const shopRouter = require('./routes/shopRoutes');
 
 const app = express();
-app.use(cors());
+app.use(cors('https://ishop-market.vercel.app'));
 
 // Development logging
 if (process.env.NODE_ENV === 'development') {
@@ -34,7 +34,7 @@ app.use('/api/v1/products', productRouter);
 app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/shops', shopRouter);
 
-//
+// For test
 app.use('/test', (req, res, next) => {
   res.send('Hello world');
 });
