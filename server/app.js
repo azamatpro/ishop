@@ -34,14 +34,14 @@ app.use('/api/v1/products', productRouter);
 app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/shops', shopRouter);
 
+app.get('/test', () => {
+  return 'Hello world';
+});
+
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
 app.use(globalErrorHandler);
-
-app.get('https://ishop-server.vercel.app/test', () => {
-  return 'Hello world';
-});
 
 module.exports = app;
