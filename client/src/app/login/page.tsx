@@ -46,6 +46,7 @@ const PageLogin = () => {
       showAlert('error', error.message);
     }
   };
+
   const handleGoogleClick = async () => {
     try {
       dispatch(signInStart());
