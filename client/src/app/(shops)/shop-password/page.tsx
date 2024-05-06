@@ -44,7 +44,6 @@ const ShopPass = () => {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      console.log(data);
 
       if (data.status !== 'success') {
         dispatch(updateShopFailure(data.message));

@@ -8,6 +8,8 @@ router.post('/', shopController.createShop);
 router.get('/', shopController.getAllShops);
 router.post('/loginShop', shopController.loginShop);
 router.get('/logoutShop', shopController.logoutShop);
+router.post('/forgetPassword', shopController.forgetPassword);
+router.patch('/resetPassword/:token', shopController.resetPassword);
 
 router.use(shopController.protect); // works to protect all routes below
 

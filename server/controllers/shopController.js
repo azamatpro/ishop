@@ -1,10 +1,11 @@
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const Shop = require('../models/shopModel');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factoryHandler');
 const { promisify } = require('util');
 const AppError = require('../utils/appError');
-const { sendCreateShoptEmail } = require('../utils/email');
+const { sendCreateShoptEmail, sendPasswordResetEmail } = require('../utils/email');
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -80,6 +81,54 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   shop.passwordConfirm = req.body.passwordConfirm;
   await shop.save();
   // 4) Log user in, send JWT token
+  createSendToken(shop, 200, res);
+});
+
+exports.forgetPassword = catchAsync(async (req, res, next) => {
+  // 1) Get user based on posted email
+  const { email } = req.body;
+  const shop = await Shop.findOne({ email });
+  if (!shop) {
+    return next(new AppError('There is no shop with this email!', 404));
+  }
+  // 2) Generate random reset token
+  const resetToken = shop.createPasswordResetToken();
+
+  await shop.save({ validateBeforeSave: false });
+  // 3) Sent it to user's email
+  try {
+    const url = `${process.env.CLIENT_ADMIN_URL}/reset-password/${resetToken}`;
+    // send email...
+    sendPasswordResetEmail(shop.email, url);
+    res.status(200).json({ status: 'success', message: 'Token sent to email!' });
+  } catch (error) {
+    shop.passwordResetToken = undefined;
+    shop.passwordResetExpires = undefined;
+    await shop.save({ validateBeforeSave: false });
+
+    return next(new AppError('There was an error sending email. Try again later!', 500));
+  }
+});
+
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  // 1) Get user based on the token
+  const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+
+  const shop = await Shop.findOne({ passwordResetToken: hashedToken, passwordResetExpires: { $gt: Date.now() } });
+
+  console.log('shop', shop);
+  if (!shop) {
+    return next(new AppError('Token is invalid or has exspired!', 400));
+  }
+  // 2) If token is not exspired and There is shop, set new password
+  shop.password = req.body.password;
+  shop.passwordConfirm = req.body.passwordConfirm;
+  shop.passwordResetToken = undefined;
+  shop.passwordResetExpires = undefined;
+  await shop.save();
+
+  // 3) Update changedAt property for the shop by using pre save middleware
+  // 4) if everything is ok, send token to shop
   createSendToken(shop, 200, res);
 });
 

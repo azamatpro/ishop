@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -88,8 +89,9 @@ const shopSchema = new mongoose.Schema(
       type: Date,
       default: Date.now(),
     },
-    resetPasswordToken: String,
-    resetPasswordTime: Date,
+    passwordChangedAt: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date,
   },
   {
     toJSON: { virtuals: true },
@@ -127,6 +129,13 @@ shopSchema.virtual('products', {
 
 shopSchema.methods.comparePassword = async function (candidatePass, shopPass) {
   return await bcrypt.compare(candidatePass, shopPass);
+};
+
+shopSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  return resetToken;
 };
 
 shopSchema.methods.checkChangedPassword = function (JWTTimestamp) {
