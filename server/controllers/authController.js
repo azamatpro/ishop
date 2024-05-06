@@ -97,7 +97,7 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
   // 3) Sent it to user's email
   try {
     // const url = `${req.protocol}://${req.get('host')}/resetPassword/${resetToken}`;
-    const url = `http://127.0.0.1:3000/resetPassword/${resetToken}`;
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/resetPassword/${resetToken}`;
     // send email...
     sendPasswordResetEmail(user.email, url);
     res.status(200).json({ status: 'success', message: 'Token sent to email!' });
