@@ -32,8 +32,8 @@ const PageResetPassword = () => {
         showAlert('error', 'Something went wrong, We could not reset your password!');
         return;
       }
-      showAlert('success', 'Password changed successfully, Log in with your new password!');
-      router.push('/login');
+      showAlert('success', 'Password updated successfully!');
+      router.push('/');
     } catch (error: any) {
       showAlert('error', error.message);
     }
