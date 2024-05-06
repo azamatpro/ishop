@@ -96,8 +96,7 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
   // 3) Sent it to user's email
   try {
-    // const url = `${req.protocol}://${req.get('host')}/resetPassword/${resetToken}`;
-    const url = `${process.env.NEXT_PUBLIC_API_URL}/resetPassword/${resetToken}`;
+    const url = `https://ishop-market.vercel.app/resetPassword/${resetToken}`;
     // send email...
     sendPasswordResetEmail(user.email, url);
     res.status(200).json({ status: 'success', message: 'Token sent to email!' });
