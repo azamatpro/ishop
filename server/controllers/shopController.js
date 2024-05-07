@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 const Shop = require('../models/shopModel');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factoryHandler');
@@ -116,7 +117,6 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   const shop = await Shop.findOne({ passwordResetToken: hashedToken, passwordResetExpires: { $gt: Date.now() } });
 
-  console.log('shop', shop);
   if (!shop) {
     return next(new AppError('Token is invalid or has exspired!', 400));
   }
@@ -130,6 +130,21 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   // 3) Update changedAt property for the shop by using pre save middleware
   // 4) if everything is ok, send token to shop
   createSendToken(shop, 200, res);
+});
+
+exports.unlockAccount = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
+  // 1) Check password exist
+  if (!email || !password) {
+    return next(new AppError('Please provide correct password or login first to unlock', 400));
+  }
+  // 2) Check if user exists and password is correct
+  const shop = await Shop.findOne({ email }).select('+password');
+
+  if (!shop || !(await shop.comparePassword(password, shop.password))) {
+    return next(new AppError('Incorrect password', 401));
+  }
+  res.status(200).json({ status: 'success', data: { shop } });
 });
 
 exports.protect = catchAsync(async (req, res, next) => {

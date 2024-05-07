@@ -17,6 +17,7 @@ router.use(shopController.protect); // works to protect all routes below
 router.use('/:shopId/products', productRoutes);
 
 router.patch('/updateShopPassword', shopController.updatePassword);
+router.post('/unlockAccount', shopController.unlockAccount);
 
 router.route('/:id').get(shopController.getShop).patch(shopController.updateShop).delete(shopController.deleteShop);
 
